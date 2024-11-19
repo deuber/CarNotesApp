@@ -55,9 +55,13 @@ To run the app continuously and ensure it restarts on crashes, use PM2:
 
 ### Start the App
 pm2 start app.js --name CarNotesApp
+
 pm2 restart CarNotesApp
+
 pm2 stop CarNotesApp
+
 pm2 logs CarNotesApp
+
 pm2 list
 
 
