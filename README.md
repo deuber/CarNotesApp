@@ -29,14 +29,15 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 
 2. Install dependancies:
 
-npm install
+   npm install
 
 3. Start the Server:
 
-node app.js
+   node app.js
 
 4. Open your browser and go to:
-http://localhost:8000/
+
+   http://localhost:8000/
 
 
 ## Technology Used
@@ -48,9 +49,9 @@ File System (fs): To store and retrieve vehicle notes locally
 
 
 ## Future Improvements?
-Add user authentication for private access.
-Allow file export/import for backup and restoration of notes.
-Add advanced filters for note search by date or odometer.
+1. Add user authentication for private access.
+2. Allow file export/import for backup and restoration of notes.
+3. Add advanced filters for note search by date or odometer.
 
 ## License
 This project is licensed under the MIT License.
