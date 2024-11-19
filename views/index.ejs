@@ -24,8 +24,21 @@
           <td><%= vehicle.brand %></td>
           <td><%= vehicle.model %></td>
           <td><%= vehicle.year %></td>
-          <td><%= vehicle.miles %></td>
-          <td><a href="/notes/<%= vehicle.id %>" class="btn btn-primary btn-sm">View/Add Notes</a></td>
+          <td>
+            <form action="/update-miles/<%= vehicle.id %>" method="POST" class="d-inline">
+              <input 
+                type="number" 
+                name="miles" 
+                value="<%= vehicle.miles %>" 
+                class="form-control form-control-sm d-inline w-auto" 
+                required
+              >
+              <button type="submit" class="btn btn-primary btn-sm">Update</button>
+            </form>
+          </td>
+          <td>
+            <a href="/notes/<%= vehicle.id %>" class="btn btn-secondary btn-sm">View/Add Notes</a>
+          </td>
         </tr>
       <% }); %>
     </tbody>

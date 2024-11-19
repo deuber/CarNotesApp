@@ -16,9 +16,9 @@ if (!fs.existsSync(notesDir)) {
 }
 
 // Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded form data
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
+app.set('view engine', 'ejs'); // Set EJS as the templating engine
 
 // Function to read notes for a vehicle
 function readNotes(vehicleId) {
@@ -38,7 +38,7 @@ function writeNote(vehicleId, note) {
   fs.writeFileSync(filePath, JSON.stringify(notes, null, 2));
 }
 
-// Route to list all vehicles
+// Vehicle data (in-memory)
 const vehicles = [
   { id: 'crown', brand: 'TOYOTA', model: 'CROWN SIGNIA XLE', year: 2025, miles: 1668 },
   { id: 'highlander', brand: 'TOYOTA', model: 'HIGHLANDER', year: 2022, miles: 21983 },
@@ -46,6 +46,7 @@ const vehicles = [
   { id: 'crosstrek', brand: 'SUBARU', model: 'Crosstrek', year: 2023, miles: 34854 }
 ];
 
+// Route to list all vehicles
 app.get('/', (req, res) => {
   res.render('index', { vehicles });
 });
@@ -70,6 +71,27 @@ app.post('/notes/:vehicleId', (req, res) => {
 
   writeNote(vehicleId, newNote);
   res.redirect(`/notes/${vehicleId}`);
+});
+
+// Route to update mileage for a specific vehicle
+app.post('/update-miles/:vehicleId', (req, res) => {
+  const { vehicleId } = req.params;
+  const { miles } = req.body;
+
+  // Find the vehicle in the list
+  const vehicle = vehicles.find(v => v.id === vehicleId);
+  if (!vehicle) {
+    return res.status(404).json({ error: 'Vehicle not found.' });
+  }
+
+  // Validate and update miles
+  const updatedMiles = parseInt(miles, 10);
+  if (isNaN(updatedMiles) || updatedMiles < 0) {
+    return res.status(400).json({ error: 'Invalid mileage value.' });
+  }
+
+  vehicle.miles = updatedMiles; // Update mileage in memory
+  res.redirect('/'); // Redirect back to the homepage
 });
 
 // Route to delete a note
@@ -98,9 +120,9 @@ app.delete('/notes/:vehicleId/:noteIndex', (req, res) => {
     // Write the updated notes back to the file
     fs.writeFileSync(filePath, JSON.stringify(notes, null, 2));
 
-    res.status(200).json({ 
-      message: 'Note deleted successfully.', 
-      notes 
+    res.status(200).json({
+      message: 'Note deleted successfully.',
+      notes
     });
   } catch (err) {
     console.error(`Error deleting note for vehicle ${vehicleId}:`, err.message);
