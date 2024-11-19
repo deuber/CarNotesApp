@@ -4,6 +4,9 @@ CarNotesApp is a simple web application designed to track maintenance notes for 
 
 This app provides a straightforward and free solution to maintain a central place for all car maintenance records.
 
+![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo.png)
+
+![Folder Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/folderView.png)
 ---
 
 ## Features
