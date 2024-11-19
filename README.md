@@ -7,6 +7,16 @@ This app provides a straightforward and free solution to maintain a central plac
 ![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo.png)
 
 ![Folder Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/folderView.png)
+
+---
+
+## Prerequisites
+Make sure you have the following installed:
+- **Node.js**: To run the server. [Download Node.js](https://nodejs.org/)
+- **Git**: For version control. [Download Git](https://git-scm.com/)
+- **PM2**: For process management. Install globally:
+  npm install -g pm2
+
 ---
 
 ## Features
@@ -39,6 +49,20 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 
    http://localhost:8000/
 
+5. To restart use PM2
+
+To run the app continuously and ensure it restarts on crashes, use PM2:
+
+### Start the App
+pm2 start app.js --name CarNotesApp
+pm2 restart CarNotesApp
+pm2 stop CarNotesApp
+pm2 logs CarNotesApp
+pm2 list
+
+
+
+![Restart APP](https://raw.githubusercontent.com/deuber/CarNotesApp/main/restart.png)
 
 ## Technology Used
 Node.js: Backend server
