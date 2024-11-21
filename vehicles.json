@@ -1,0 +1,37 @@
+[
+  {
+    "id": "crown",
+    "brand": "TOYOTA",
+    "model": "CROWN SIGNIA XLE",
+    "year": 2025,
+    "miles": 1668
+  },
+  {
+    "id": "highlander",
+    "brand": "TOYOTA",
+    "model": "HIGHLANDER",
+    "year": 2022,
+    "miles": 21983
+  },
+  {
+    "id": "tacoma",
+    "brand": "TOYOTA",
+    "model": "TACOMA TRD OFFRD",
+    "year": 2023,
+    "miles": 19441
+  },
+  {
+    "id": "crosstrek",
+    "brand": "SUBARU",
+    "model": "Crosstrek",
+    "year": 2023,
+    "miles": 34854
+  },
+  {
+    "id": "5",
+    "brand": "Ford",
+    "model": "F150",
+    "year": 2000,
+    "miles": 2001
+  }
+]
