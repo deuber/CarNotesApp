@@ -40,6 +40,7 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 2. Install dependancies:
 
    npm install
+   
    npm install method-override
 
 
