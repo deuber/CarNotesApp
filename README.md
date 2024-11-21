@@ -4,9 +4,9 @@ CarNotesApp is a simple web application designed to track maintenance notes for 
 
 This app provides a straightforward and free solution to maintain a central place for all car maintenance records.
 
-![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo2.png)
+![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo5.png)
 
-![Folder Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/folderView.png)
+
 
 ---
 
@@ -40,6 +40,9 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 2. Install dependancies:
 
    npm install
+   npm install method-override
+
+
 
 3. Start the Server:
 

@@ -10,6 +10,7 @@
 <body>
   <div class="container my-5">
     <h1 class="mb-4">My Vehicles</h1>
+
     <!-- Vehicles Table -->
     <table class="table table-striped">
       <thead>
@@ -34,7 +35,10 @@
               </form>
             </td>
             <td>
-              <a href="/notes/<%= vehicle.id %>" class="btn btn-secondary">View/Add Notes</a>
+              <a href="/notes/<%= vehicle.id %>" class="btn btn-secondary me-2">View/Add Notes</a>
+              <form action="/vehicles/<%= vehicle.id %>?_method=DELETE" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this vehicle?');">Delete</button>
+              </form>
             </td>
           </tr>
         <% }); %>

@@ -26,12 +26,5 @@
     "model": "Crosstrek",
     "year": 2023,
     "miles": 34854
-  },
-  {
-    "id": "5",
-    "brand": "Ford",
-    "model": "F150",
-    "year": 2000,
-    "miles": 2001
   }
 ]
