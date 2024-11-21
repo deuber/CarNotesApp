@@ -1,6 +1,6 @@
 # CarNotesApp
 
-CarNotesApp is a simple web application designed to track maintenance notes for multiple vehicles. This app was created to solve a specific problem where the SmartCar API no longer allowed free access to manage multiple vehicles, limiting its usefulness for tracking all vehicle data. 
+CarNotesApp is a more simple web application designed to track maintenance notes for multiple vehicles but without API. This app was created to solve a specific problem where the SmartCar API no longer allowed free access to manage multiple vehicles, limiting its usefulness for tracking all vehicle data. 
 
 This app provides a straightforward and free solution to maintain a central place for all car maintenance records.
 
