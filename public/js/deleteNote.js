@@ -1,27 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const deleteButtons = document.querySelectorAll('.delete-note');
-
-  deleteButtons.forEach(button => {
+  document.querySelectorAll('.delete-note').forEach(button => {
     button.addEventListener('click', async (event) => {
       const vehicleId = button.getAttribute('data-vehicle-id');
       const noteIndex = button.getAttribute('data-note-index');
 
-      const confirmDelete = confirm('Are you sure you want to delete this note?');
-      if (!confirmDelete) return;
+      if (confirm('Are you sure you want to delete this note?')) {
+        try {
+          const response = await fetch(`/notes/${vehicleId}/${noteIndex}`, { method: 'DELETE' });
 
-      try {
-        const response = await fetch(`/notes/${vehicleId}/${noteIndex}`, { method: 'DELETE' });
-        const result = await response.json();
-
-        if (response.ok) {
-          alert(result.message);
-          location.reload(); // Reload the page to reflect changes
-        } else {
-          alert(result.error || 'Failed to delete note.');
+          if (response.ok) {
+            const result = await response.json(); // Parse JSON response
+            alert(result.message);
+            location.reload(); // Reload the page to update the notes list
+          } else {
+            const error = await response.json(); // Parse error JSON
+            alert(`Failed to delete note: ${error.error}`);
+          }
+        } catch (error) {
+          console.error('Error deleting note:', error);
+          alert('An error occurred while deleting the note');
         }
-      } catch (err) {
-        console.error('Error deleting note:', err);
-        alert('An error occurred while trying to delete the note.');
       }
     });
   });

@@ -92,13 +92,14 @@ app.delete('/notes/:vehicleId/:index', (req, res) => {
 
   if (fs.existsSync(filePath)) {
     const notes = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    notes.splice(index, 1);
+    notes.splice(index, 1); // Remove the note at the given index
     fs.writeFileSync(filePath, JSON.stringify(notes, null, 2));
-    res.status(200).send('Note deleted');
+    res.json({ message: 'Note deleted successfully' }); // Respond with JSON
   } else {
-    res.status(404).send('Notes file not found');
+    res.status(404).json({ error: 'Notes file not found' }); // Respond with error JSON
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
