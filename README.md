@@ -82,6 +82,7 @@ File System (fs): To store and retrieve vehicle notes locally
 ## Future Improvements?
 1. Add user authentication for private access.
 2. Allow file export/import for backup and restoration of notes.
+3. Add cost per maintence and new graph
 
 ## License
 This project is licensed under the MIT License.
