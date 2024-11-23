@@ -50,7 +50,7 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 
 4. Open your browser and go to:
 
-   http://localhost:8000/
+   http://localhost:8080/
 
 5. To restart use PM2
 
