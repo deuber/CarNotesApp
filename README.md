@@ -1,11 +1,8 @@
 # CarNotesApp
 
-CarNotesApp is a more simple web application designed to track maintenance notes for multiple vehicles but without API. This app was created to solve a specific problem where the SmartCar API no longer allowed free access to manage multiple vehicles, limiting its usefulness for tracking all vehicle data. 
+This Node.js app provides a straightforward graph for tracking maintenance over time and serves as a free way to centralize car maintenance records. However, the API was disabled due to Smartcar costs
 
-This app provides a straightforward and free solution to maintain a central place for all car maintenance records.
-
-![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo5.png)
-
+![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo6.png)
 
 
 ---
