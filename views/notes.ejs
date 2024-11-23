@@ -8,25 +8,32 @@
 </head>
 <body class="container mt-5">
   <h1 class="mb-4">Notes for Vehicle ID: <%= vehicleId %></h1>
+
+  <!-- Notes List -->
   <ul class="list-group mb-4">
-    <% notes.forEach((note, index) => { %>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Date:</strong> <%= note.date %> | 
-          <strong>Odometer:</strong> <%= note.odometer %> miles
-          <p><%= note.note %></p>
-        </div>
-        <button
-          class="btn btn-danger btn-sm delete-note"
-          data-vehicle-id="<%= vehicleId %>"
-          data-note-index="<%= index %>"
-        >
-          Delete
-        </button>
-      </li>
-    <% }); %>
+    <% if (notes.length === 0) { %>
+      <li class="list-group-item">No notes found for this vehicle.</li>
+    <% } else { %>
+      <% notes.forEach((note, index) => { %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>Date:</strong> <%= note.date %> | 
+            <strong>Odometer:</strong> <%= note.odometer %> miles
+            <p><%= note.note %></p>
+          </div>
+          <button
+            class="btn btn-danger btn-sm delete-note"
+            data-vehicle-id="<%= vehicleId %>"
+            data-note-index="<%= index %>"
+          >
+            Delete
+          </button>
+        </li>
+      <% }); %>
+    <% } %>
   </ul>
 
+  <!-- Add Note Form -->
   <form method="POST" action="/notes/<%= vehicleId %>">
     <div class="mb-3">
       <label for="note" class="form-label">Note:</label>
@@ -42,6 +49,8 @@
     </div>
     <button type="submit" class="btn btn-success">Add Note</button>
   </form>
+
+  <a href="/" class="btn btn-primary mt-3">Back to Home</a>
 
   <script src="/js/deleteNote.js"></script>
 </body>
