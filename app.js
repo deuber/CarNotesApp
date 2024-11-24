@@ -88,37 +88,82 @@ app.get('/notes/:vehicleId', (req, res) => {
 });
 
 // Route: Add a new note
-app.post('/notes/:vehicleId', (req, res) => {
+// Route: Update vehicle mileage
+app.post('/update-miles/:vehicleId', (req, res) => {
   const { vehicleId } = req.params;
-  const { note, date, odometer } = req.body;
+  const { miles } = req.body;
 
-  if (!note || !date || isNaN(odometer)) {
-    return res.status(400).send('Invalid note data.');
+  if (isNaN(miles) || miles < 0) {
+    return res.status(400).send('Invalid mileage value.');
   }
 
-  const notes = readNotes(vehicleId);
-  notes.push({ note, date, odometer: parseInt(odometer, 10) });
-  writeNotes(vehicleId, notes);
+  const vehicles = readVehicles();
+  const vehicle = vehicles.find(v => v.id === vehicleId);
 
-  res.redirect(`/notes/${vehicleId}`);
+  if (vehicle) {
+    vehicle.miles = parseInt(miles, 10); // Update the mileage
+    writeVehicles(vehicles); // Save the updated vehicles list
+    res.redirect('/'); // Redirect back to the home page
+  } else {
+    res.status(404).send('Vehicle not found.');
+  }
 });
 
-// Route: Edit a note (render edit form)
-app.get('/notes/:vehicleId/edit/:index', (req, res) => {
-  const { vehicleId, index } = req.params;
-  const notes = readNotes(vehicleId);
+// Route: Add a new vehicle
+app.post('/vehicles', (req, res) => {
+  const { id, brand, model, year, miles } = req.body;
 
-  if (!notes[index]) {
-    return res.status(404).send('Note not found.');
+  if (!id || !brand || !model || isNaN(year) || isNaN(miles) || year < 1900 || miles < 0) {
+    return res.status(400).send('Invalid vehicle data.');
   }
 
-  res.render('editNote', { vehicleId, index, note: notes[index] });
+  const vehicles = readVehicles();
+  if (vehicles.some(vehicle => vehicle.id === id)) {
+    return res.status(400).send('A vehicle with this ID already exists.');
+  }
+
+  const newVehicle = {
+    id,
+    brand,
+    model,
+    year: parseInt(year, 10),
+    miles: parseInt(miles, 10),
+  };
+
+  vehicles.push(newVehicle);
+  writeVehicles(vehicles);
+
+  res.redirect('/');
 });
+
+// Route: Delete a vehicle
+app.delete('/vehicles/:vehicleId', (req, res) => {
+  const { vehicleId } = req.params;
+
+  const vehicles = readVehicles();
+  const updatedVehicles = vehicles.filter(vehicle => vehicle.id !== vehicleId);
+
+  if (updatedVehicles.length === vehicles.length) {
+    return res.status(404).send('Vehicle not found.');
+  }
+
+  // Save the updated vehicles list
+  writeVehicles(updatedVehicles);
+
+  // Remove associated notes file, if it exists
+  const notesFilePath = path.join(notesDir, `${vehicleId}.json`);
+  if (fs.existsSync(notesFilePath)) {
+    fs.unlinkSync(notesFilePath);
+  }
+
+  res.redirect('/');
+});
+
 
 // Route: Update a note
 app.put('/notes/:vehicleId/:index', (req, res) => {
   const { vehicleId, index } = req.params;
-  const { note, date, odometer } = req.body;
+  const { note, date, odometer, cost } = req.body;
 
   if (!note || !date || isNaN(odometer)) {
     return res.status(400).send('Invalid note data.');
@@ -130,11 +175,17 @@ app.put('/notes/:vehicleId/:index', (req, res) => {
     return res.status(404).send('Note not found.');
   }
 
-  notes[index] = { note, date, odometer: parseInt(odometer, 10) };
+  notes[index] = {
+    note,
+    date,
+    odometer: parseInt(odometer, 10),
+    cost: cost ? parseFloat(cost).toFixed(2) : null, // Handle optional cost
+  };
   writeNotes(vehicleId, notes);
 
   res.redirect(`/notes/${vehicleId}`);
 });
+
 
 // Route: Delete a note
 app.delete('/notes/:vehicleId/:index', (req, res) => {

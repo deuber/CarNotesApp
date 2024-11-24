@@ -22,6 +22,10 @@
       <label for="note" class="form-label">Note:</label>
       <textarea name="note" id="note" class="form-control" required><%= note.note %></textarea>
     </div>
+    <div class="mb-3">
+      <label for="cost" class="form-label">Cost:</label>
+      <input type="number" name="cost" id="cost" class="form-control" value="<%= note.cost || '' %>" step="0.01">
+    </div>
     <button type="submit" class="btn btn-primary">Save Changes</button>
     <a href="/notes/<%= vehicleId %>" class="btn btn-secondary">Cancel</a>
   </form>

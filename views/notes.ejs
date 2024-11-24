@@ -18,7 +18,8 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <div>
             <strong>Date:</strong> <%= note.date %> | 
-            <strong>Odometer:</strong> <%= note.odometer %> miles
+            <strong>Odometer:</strong> <%= note.odometer %> miles | 
+            <strong>Cost:</strong> <%= note.cost ? `$${note.cost}` : 'N/A' %>
             <p><%= note.note %></p>
           </div>
           <div>
@@ -46,11 +47,13 @@
       <label for="odometer" class="form-label">Odometer:</label>
       <input type="number" name="odometer" id="odometer" class="form-control" required>
     </div>
+    <div class="mb-3">
+      <label for="cost" class="form-label">Cost:</label>
+      <input type="number" name="cost" id="cost" class="form-control" step="0.01">
+    </div>
     <button type="submit" class="btn btn-success">Add Note</button>
   </form>
 
   <a href="/" class="btn btn-primary mt-3">Back to Home</a>
-
-  <script src="/js/deleteNote.js"></script>
 </body>
 </html>
