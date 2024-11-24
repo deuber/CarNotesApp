@@ -21,13 +21,12 @@
             <strong>Odometer:</strong> <%= note.odometer %> miles
             <p><%= note.note %></p>
           </div>
-          <button
-            class="btn btn-danger btn-sm delete-note"
-            data-vehicle-id="<%= vehicleId %>"
-            data-note-index="<%= index %>"
-          >
-            Delete
-          </button>
+          <div>
+            <a href="/notes/<%= vehicleId %>/edit/<%= index %>" class="btn btn-warning btn-sm me-2">Edit</a>
+            <form method="POST" action="/notes/<%= vehicleId %>/<%= index %>?_method=DELETE" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
         </li>
       <% }); %>
     <% } %>
