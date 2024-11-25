@@ -120,86 +120,97 @@
           return [];
         }
       }
-
       // Render Cost vs Mileage Chart
-      async function renderCostChart(vehicleId) {
-        const data = await fetchMaintenanceData(vehicleId);
+async function renderCostChart(vehicleId) {
+  const data = await fetchMaintenanceData(vehicleId);
 
-        if (data.length === 0) {
-          alert('No maintenance data found for this vehicle.');
-          return;
-        }
+  if (data.length === 0) {
+    alert('No maintenance data found for this vehicle.');
+    return;
+  }
 
-        const mileageData = data.map(record => record.miles); // X-axis: Mileage
-        const cumulativeCostData = data.map(record => record.cost); // Y-axis: Cumulative costs
-        const services = data.map(record => record.service); // Maintenance services
-        const dates = data.map(record => record.date); // Maintenance dates
+  const mileageData = data.map(record => record.miles); // X-axis: Mileage
+  const cumulativeCostData = data.map(record => record.cost); // Y-axis: Cumulative costs
+  const services = data.map(record => record.service); // Maintenance services
+  const maintenanceCosts = data.map(record => record.cost - (cumulativeCostData[data.indexOf(record) - 1] || 0)); // Individual maintenance costs
+  const dates = data.map(record => record.date); // Maintenance dates
 
-        const canvas = document.getElementById('costChart');
-        const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById('costChart');
+  const ctx = canvas.getContext('2d');
 
-        if (window.costChart) {
-          window.costChart.destroy();
-        }
+  if (window.costChart) {
+    window.costChart.destroy();
+  }
 
-        window.costChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: mileageData, // X-axis: Mileage
-            datasets: [
-              {
-                label: 'Cost vs Mileage',
-                data: cumulativeCostData, // Y-axis: Cumulative costs
-                borderColor: 'rgba(255, 99, 132, 1)', // Red
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                fill: true,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    const mileage = context.label;
-                    const cost = context.raw;
-                    const service = services[context.dataIndex];
-                    return [`Mileage: ${mileage} miles`, `Total Cost: $${cost.toFixed(2)}`, `Service: ${service}`];
-                  },
-                },
-              },
-            },
-            onClick: (event, elements) => {
-              if (elements.length > 0) {
-                const chartElement = elements[0];
-                const index = chartElement.index; // Index of the clicked point
-                const mileage = mileageData[index];
-                const cost = cumulativeCostData[index];
-                const service = services[index];
-                const date = dates[index];
-
-                // Update the maintenance details section
-                const detailsDiv = document.getElementById('maintenanceDetails');
-                detailsDiv.innerHTML = `
-                  <p><strong>Date:</strong> ${date}</p>
-                  <p><strong>Mileage:</strong> ${mileage} miles</p>
-                  <p><strong>Total Cost:</strong> $${cost.toFixed(2)}</p>
-                  <p><strong>Service:</strong> ${service}</p>
-                `;
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: false,
-                min: 20000, // Set minimum value to $20,000
-                title: { display: true, text: 'Cost ($)' },
-              },
-              x: { title: { display: true, text: 'Mileage (miles)' } },
+  window.costChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: mileageData, // X-axis: Mileage
+      datasets: [
+        {
+          label: 'Cost vs Mileage',
+          data: cumulativeCostData, // Y-axis: Cumulative costs
+          borderColor: 'rgba(255, 99, 132, 1)', // Red
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const mileage = context.label;
+              const totalCost = context.raw;
+              const service = services[context.dataIndex];
+              const maintenanceCost = maintenanceCosts[context.dataIndex];
+              return [
+                `Mileage: ${mileage} miles`,
+                `Total Cost: $${totalCost.toFixed(2)}`,
+                `Maintenance Cost: $${maintenanceCost.toFixed(2)}`, // Added this
+                `Service: ${service}`,
+              ];
             },
           },
-        });
-      }
+        },
+      },
+      onClick: (event, elements) => {
+        if (elements.length > 0) {
+          const chartElement = elements[0];
+          const index = chartElement.index; // Index of the clicked point
+          const mileage = mileageData[index];
+          const totalCost = cumulativeCostData[index];
+          const maintenanceCost = maintenanceCosts[index];
+          const service = services[index];
+          const date = dates[index];
+
+          // Update the maintenance details section
+          const detailsDiv = document.getElementById('maintenanceDetails');
+          detailsDiv.innerHTML = `
+            <p><strong>Date:</strong> ${date}</p>
+            <p><strong>Mileage:</strong> ${mileage} miles</p>
+            <p><strong>Total Cost:</strong> $${totalCost.toFixed(2)}</p>
+            <p><strong>Maintenance Cost:</strong> $${maintenanceCost.toFixed(2)}</p>
+            <p><strong>Service:</strong> ${service}</p>
+          `;
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          min: 20000, // Set minimum value to $20,000
+          title: { display: true, text: 'Cost ($)' },
+        },
+        x: { title: { display: true, text: 'Mileage (miles)' } },
+      },
+    },
+  });
+}
+
+
+
 
       // Attach event listener for vehicle selection
       const vehicleSelect = document.getElementById('vehicleSelect');
