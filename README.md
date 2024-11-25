@@ -1,6 +1,6 @@
-# CarNotesApp
+# CarNotesApp 
 
-This Node.js app provides a straightforward graph for tracking maintenance over milage and serves as a free way to centralize car maintenance records. However, the SmartCar API was disabled due to Smartcar costs
+This REST API Node.js app offers a simple, user-friendly graph to track car maintenance against mileage, providing a free and centralized solution for managing maintenance records. Unfortunately, integration with the SmartCar API has been disabled due to the associated costs.
 
 ![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo9.png)
 
