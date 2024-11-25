@@ -5,7 +5,7 @@ This Node.js app provides a straightforward graph for tracking maintenance over 
 ![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo8.png)
 
 
-![New Edit with cost](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/Vehicle-Notes-edit.png)
+![New Edit with cost](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/Vehicle-Notes-edit2.png)
 
 
 
