@@ -2,12 +2,11 @@
 
 This Node.js app provides a straightforward graph for tracking maintenance over time and serves as a free way to centralize car maintenance records. However, the API was disabled due to Smartcar costs
 
-![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo7.png)
+![Demo Image](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo8.png)
 
 
 ![New Edit with cost](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/Vehicle-Notes-edit.png)
 
-![New Cost Graph](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/CostGraph.png)
 
 
 
