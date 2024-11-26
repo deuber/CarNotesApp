@@ -1,3 +1,5 @@
+// app.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -11,7 +13,7 @@ const port = 8080;
 // Define file paths
 const notesDir = path.join(__dirname, 'notes');
 const vehiclesFilePath = path.join(__dirname, 'vehicles.json');
-const vehiclesSampleFilePath = path.join(__dirname, 'vehicles.empty.json');
+const vehiclesSampleFilePath = path.join(__dirname, 'vehicles.sample.json');
 
 // Ensure the notes directory exists
 if (!fs.existsSync(notesDir)) {
@@ -86,7 +88,18 @@ if (!fs.existsSync(vehiclesFilePath)) {
 // Route: Home page
 app.get('/', (req, res) => {
   const vehicles = readVehicles();
-  res.render('index', { vehicles });
+
+  // For each vehicle, find the max cost from its notes
+  const vehiclesWithMaxCost = vehicles.map(vehicle => {
+    const notes = readNotes(vehicle.id);
+    const maxCost = notes.reduce((max, note) => {
+      const cost = parseFloat(note.cost) || 0;
+      return cost > max ? cost : max;
+    }, 0);
+    return { ...vehicle, maxCost };
+  });
+
+  res.render('index', { vehicles: vehiclesWithMaxCost });
 });
 
 // Route: Fetch maintenance data for a vehicle
@@ -95,17 +108,23 @@ app.get('/maintenance/:vehicleId', (req, res) => {
   const notes = readNotes(vehicleId);
 
   let cumulativeCost = 0;
+  let maxCost = 0;
+
   const maintenanceData = notes.map(note => {
-    cumulativeCost += parseFloat(note.cost) || 0; // Add cost to cumulative total
+    const cost = parseFloat(note.cost) || 0;
+    if (cost > maxCost) {
+      maxCost = cost;
+    }
+    cumulativeCost += cost;
     return {
-      miles: note.odometer,
-      cost: cumulativeCost, // Use cumulative cost
-      service: note.note,
+      note: note.note,
       date: note.date,
+      odometer: note.odometer,
+      cost: cumulativeCost.toFixed(2),
     };
   });
 
-  res.json(maintenanceData);
+  res.json({ maintenanceData, maxCost: maxCost.toFixed(2) });
 });
 
 // Route: Notes page
