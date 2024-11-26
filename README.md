@@ -58,9 +58,8 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 5. To get started, add your first vehicle
 ![First Car](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/addCar.png)
 
-6. Then get notes for each car
+6. Then add notes for each car
 ![First Note](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/addNote.png)
-
 
 
 
