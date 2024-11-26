@@ -55,7 +55,16 @@ Originally, I used the SmartCar API to track vehicle data, but the free plan all
 
    http://localhost:8080/
 
-5. To restart use PM2
+5. To get started, add your first vehicle
+![First Car](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/addCar.png)
+
+6. Then get notes for each car
+![First Note](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/addNote.png)
+
+
+
+
+6. To restart use PM2
 
 To run the app continuously and ensure it restarts on crashes, use PM2:
 
