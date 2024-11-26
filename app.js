@@ -1,3 +1,5 @@
+// app.js
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -11,6 +13,7 @@ const port = 8080;
 // Define file paths
 const notesDir = path.join(__dirname, 'notes');
 const vehiclesFilePath = path.join(__dirname, 'vehicles.json');
+const vehiclesSampleFilePath = path.join(__dirname, 'vehicles.sample.json');
 
 // Ensure the notes directory exists
 if (!fs.existsSync(notesDir)) {
@@ -26,21 +29,33 @@ app.set('view engine', 'ejs');
 // Utility: Read vehicles
 function readVehicles() {
   if (fs.existsSync(vehiclesFilePath)) {
-    return JSON.parse(fs.readFileSync(vehiclesFilePath, 'utf-8'));
+    try {
+      const data = fs.readFileSync(vehiclesFilePath, 'utf-8').trim();
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Error reading vehicles.json:', error);
+      return [];
+    }
   }
   return [];
 }
 
 // Utility: Write vehicles
 function writeVehicles(vehicles) {
-  fs.writeFileSync(vehiclesFilePath, JSON.stringify(vehicles, null, 2));
+  fs.writeFileSync(vehiclesFilePath, JSON.stringify(vehicles, null, 2), 'utf-8');
 }
 
 // Utility: Read notes
 function readNotes(vehicleId) {
   const filePath = path.join(notesDir, `${vehicleId}.json`);
   if (fs.existsSync(filePath)) {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    try {
+      const data = fs.readFileSync(filePath, 'utf-8').trim();
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error(`Error reading notes for vehicle ${vehicleId}:`, error);
+      return [];
+    }
   }
   return [];
 }
@@ -48,24 +63,43 @@ function readNotes(vehicleId) {
 // Utility: Write notes
 function writeNotes(vehicleId, notes) {
   const filePath = path.join(notesDir, `${vehicleId}.json`);
-  fs.writeFileSync(filePath, JSON.stringify(notes, null, 2));
+  fs.writeFileSync(filePath, JSON.stringify(notes, null, 2), 'utf-8');
 }
 
-// Ensure vehicles.json exists with initial data
+// Ensure vehicles.json exists by copying from vehicles.sample.json or initializing empty
 if (!fs.existsSync(vehiclesFilePath)) {
-  const initialVehicles = [
-    { id: 'crown', brand: 'TOYOTA', model: 'CROWN SIGNIA XLE', year: 2025, miles: 1668 },
-    { id: 'highlander', brand: 'TOYOTA', model: 'HIGHLANDER', year: 2022, miles: 21983 },
-    { id: 'tacoma', brand: 'TOYOTA', model: 'TACOMA TRD OFFRD', year: 2023, miles: 19441 },
-    { id: 'crosstrek', brand: 'SUBARU', model: 'Crosstrek', year: 2023, miles: 34854 }
-  ];
-  writeVehicles(initialVehicles);
+  const vehiclesSamplePath = path.join(__dirname, 'vehicles.sample.json');
+  if (fs.existsSync(vehiclesSamplePath)) {
+    try {
+      const sampleVehicles = JSON.parse(fs.readFileSync(vehiclesSamplePath, 'utf-8'));
+      writeVehicles(sampleVehicles);
+      console.log('vehicles.json has been created from vehicles.sample.json.');
+    } catch (error) {
+      console.error('Error reading vehicles.sample.json:', error);
+      writeVehicles([]);
+      console.log('Initialized vehicles.json with an empty array due to error.');
+    }
+  } else {
+    writeVehicles([]);
+    console.log('vehicles.sample.json not found. Initialized vehicles.json with an empty array.');
+  }
 }
 
 // Route: Home page
 app.get('/', (req, res) => {
   const vehicles = readVehicles();
-  res.render('index', { vehicles });
+
+  // For each vehicle, find the max cost from its notes
+  const vehiclesWithMaxCost = vehicles.map(vehicle => {
+    const notes = readNotes(vehicle.id);
+    const maxCost = notes.reduce((max, note) => {
+      const cost = parseFloat(note.cost) || 0;
+      return cost > max ? cost : max;
+    }, 0);
+    return { ...vehicle, maxCost };
+  });
+
+  res.render('index', { vehicles: vehiclesWithMaxCost });
 });
 
 // Route: Fetch maintenance data for a vehicle
@@ -74,19 +108,24 @@ app.get('/maintenance/:vehicleId', (req, res) => {
   const notes = readNotes(vehicleId);
 
   let cumulativeCost = 0;
+  let maxCost = 0;
+
   const maintenanceData = notes.map(note => {
-    cumulativeCost += parseFloat(note.cost) || 0; // Add cost to cumulative total
+    const cost = parseFloat(note.cost) || 0;
+    if (cost > maxCost) {
+      maxCost = cost;
+    }
+    cumulativeCost += cost;
     return {
-      miles: note.odometer,
-      cost: cumulativeCost, // Use cumulative cost
-      service: note.note,
+      note: note.note,
       date: note.date,
+      odometer: note.odometer,
+      cost: cumulativeCost.toFixed(2),
     };
   });
 
-  res.json(maintenanceData);
+  res.json({ maintenanceData, maxCost: maxCost.toFixed(2) });
 });
-
 
 // Route: Notes page
 app.get('/notes/:vehicleId', (req, res) => {
@@ -130,7 +169,6 @@ app.post('/vehicles', (req, res) => {
   res.redirect('/');
 });
 
-
 // Route: Edit a note (render edit form)
 app.get('/notes/:vehicleId/edit/:index', (req, res) => {
   const { vehicleId, index } = req.params;
@@ -162,7 +200,6 @@ app.delete('/notes/:vehicleId/:index', (req, res) => {
   res.redirect(`/notes/${vehicleId}`);
 });
 
-
 // Route: Add a new note
 app.post('/notes/:vehicleId', (req, res) => {
   const { vehicleId } = req.params;
@@ -173,7 +210,12 @@ app.post('/notes/:vehicleId', (req, res) => {
   }
 
   const notes = readNotes(vehicleId);
-  notes.push({ note, date, odometer: parseInt(odometer, 10), cost: cost ? parseFloat(cost).toFixed(2) : null });
+  notes.push({
+    note,
+    date,
+    odometer: parseInt(odometer, 10),
+    cost: cost ? parseFloat(cost).toFixed(2) : null,
+  });
   writeNotes(vehicleId, notes);
 
   res.redirect(`/notes/${vehicleId}`);
@@ -201,7 +243,7 @@ app.put('/notes/:vehicleId/:index', (req, res) => {
     note,
     date,
     odometer: parseInt(odometer, 10),
-    cost: parseFloat(cost).toFixed(2) // Ensure cost is formatted as a float
+    cost: parseFloat(cost).toFixed(2), // Ensure cost is formatted as a float
   };
 
   // Save the updated notes
@@ -230,26 +272,6 @@ app.post('/update-miles/:vehicleId', (req, res) => {
   } else {
     res.status(404).send('Vehicle not found.');
   }
-});
-
-// Route: Add a new vehicle
-app.post('/vehicles', (req, res) => {
-  const { id, brand, model, year, miles } = req.body;
-
-  if (!id || !brand || !model || isNaN(year) || isNaN(miles) || year < 1900 || miles < 0) {
-    return res.status(400).send('Invalid vehicle data.');
-  }
-
-  const vehicles = readVehicles();
-  if (vehicles.some(vehicle => vehicle.id === id)) {
-    return res.status(400).send('A vehicle with this ID already exists.');
-  }
-
-  const newVehicle = { id, brand, model, year: parseInt(year, 10), miles: parseInt(miles, 10) };
-  vehicles.push(newVehicle);
-  writeVehicles(vehicles);
-
-  res.redirect('/');
 });
 
 // Route: Delete a vehicle

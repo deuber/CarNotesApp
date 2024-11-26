@@ -1,0 +1,9 @@
+[
+  {
+    "id": "example-car",
+    "brand": "BRAND",
+    "model": "MODEL",
+    "year": 2023,
+    "miles": 0
+  }
+]
