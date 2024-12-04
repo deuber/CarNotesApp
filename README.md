@@ -8,7 +8,7 @@ This REST API Node.js app offers a simple, user-friendly graph to track car main
 ![New Edit with cost](https://raw.githubusercontent.com/deuber/CarNotesApp/main/images/Vehicle-Notes-edit3.png)
 
 
-Dec 4, 2024 added new Time vs Cost graph
+New Cost vs Time graph
 ![New Time vs Cost](https://raw.githubusercontent.com/deuber/CarNotesApp/main/My-Vehicles-demo10.png)
 
 
