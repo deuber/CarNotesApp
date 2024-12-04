@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vehicle Maintenance Tracker</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js and Luxon Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0/dist/chartjs-adapter-luxon.min.js"></script>
   <style>
     #vehicleSelect {
       width: 300px;
@@ -99,6 +102,9 @@
     <h2 class="mt-5 text-center">Cost vs Mileage</h2>
     <canvas id="costChart"></canvas>
 
+    <h2 class="mt-5 text-center">Cost vs Time</h2>
+    <canvas id="costTimeChart"></canvas>
+
     <!-- Maintenance Details Section -->
     <div id="maintenanceDetails" class="text-center">
       Click on a point to see maintenance details.
@@ -108,6 +114,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       window.costChart = null;
+      window.costTimeChart = null;
 
       // Fetch maintenance data for a given vehicle
       async function fetchMaintenanceData(vehicleId) {
@@ -121,8 +128,8 @@
         }
       }
 
-      // Render Cost vs Mileage Chart
-      async function renderCostChart(vehicleId) {
+      // Render Cost vs Mileage and Cost vs Time Charts
+      async function renderCharts(vehicleId) {
         const dataResponse = await fetchMaintenanceData(vehicleId);
         const data = dataResponse.maintenanceData;
         const maxCost = parseFloat(dataResponse.maxCost) || 0;
@@ -132,10 +139,14 @@
           return;
         }
 
-        const mileageData = data.map(record => record.odometer); // X-axis: Mileage
-        const cumulativeCostData = data.map(record => parseFloat(record.cost)); // Y-axis: Cumulative costs
-        const services = data.map(record => record.note); // Maintenance services
-        const dates = data.map(record => record.date); // Maintenance dates
+        // Extract data needed for charts
+        const mileageData = data.map(record => record.odometer);
+        const cumulativeCostData = data.map(record => parseFloat(record.cost));
+        const services = data.map(record => record.note);
+        const dates = data.map(record => record.date);
+
+        // Convert dates to Luxon DateTime objects
+        const dateObjects = dates.map(dateStr => luxon.DateTime.fromISO(dateStr));
 
         // Calculate individual maintenance costs
         const maintenanceCosts = data.map((record, index) => {
@@ -147,24 +158,25 @@
         });
 
         // Find the maximum individual maintenance cost
-        const maxIndividualCost = Math.max(...maintenanceCosts, 1000); // Set a default min to $1,000 if needed
+        const maxIndividualCost = Math.max(...maintenanceCosts, 1000);
 
-        const canvas = document.getElementById('costChart');
-        const ctx = canvas.getContext('2d');
+        // Render Cost vs Mileage Chart
+        const canvasMileage = document.getElementById('costChart');
+        const ctxMileage = canvasMileage.getContext('2d');
 
         if (window.costChart) {
           window.costChart.destroy();
         }
 
-        window.costChart = new Chart(ctx, {
+        window.costChart = new Chart(ctxMileage, {
           type: 'line',
           data: {
-            labels: mileageData, // X-axis: Mileage
+            labels: mileageData,
             datasets: [
               {
                 label: 'Cumulative Maintenance Cost',
-                data: cumulativeCostData, // Y-axis: Cumulative costs
-                borderColor: 'rgba(255, 99, 132, 1)', // Red
+                data: cumulativeCostData,
+                borderColor: 'rgba(255, 99, 132, 1)',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: true,
               },
@@ -196,7 +208,7 @@
             onClick: (event, elements) => {
               if (elements.length > 0) {
                 const chartElement = elements[0];
-                const index = chartElement.index; // Index of the clicked point
+                const index = chartElement.index;
                 const mileage = mileageData[index];
                 const totalCost = cumulativeCostData[index];
                 const maintenanceCost = maintenanceCosts[index];
@@ -217,10 +229,93 @@
             scales: {
               y: {
                 beginAtZero: false,
-                min: maxIndividualCost, // Dynamically set min to the largest individual cost
+                min: maxIndividualCost,
                 title: { display: true, text: 'Cost ($)' },
               },
               x: { title: { display: true, text: 'Mileage (miles)' } },
+            },
+          },
+        });
+
+        // Render Cost vs Time Chart
+        const canvasTime = document.getElementById('costTimeChart');
+        const ctxTime = canvasTime.getContext('2d');
+
+        if (window.costTimeChart) {
+          window.costTimeChart.destroy();
+        }
+
+        window.costTimeChart = new Chart(ctxTime, {
+          type: 'line',
+          data: {
+            labels: dateObjects,
+            datasets: [
+              {
+                label: 'Cumulative Maintenance Cost',
+                data: cumulativeCostData,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const index = context.dataIndex;
+                    const mileage = mileageData[index];
+                    const totalCost = cumulativeCostData[index];
+                    const maintenanceCost = maintenanceCosts[index];
+                    const service = services[index];
+                    const date = dates[index];
+                    return [
+                      `Date: ${date}`,
+                      `Total Cost: $${totalCost.toFixed(2)}`,
+                      `Maintenance Cost: $${maintenanceCost.toFixed(2)}`,
+                      `Service: ${service}`,
+                      `Mileage: ${mileage} miles`,
+                    ];
+                  },
+                },
+              },
+            },
+            onClick: (event, elements) => {
+              if (elements.length > 0) {
+                const chartElement = elements[0];
+                const index = chartElement.index;
+                const mileage = mileageData[index];
+                const totalCost = cumulativeCostData[index];
+                const maintenanceCost = maintenanceCosts[index];
+                const service = services[index];
+                const date = dates[index];
+
+                // Update the maintenance details section
+                const detailsDiv = document.getElementById('maintenanceDetails');
+                detailsDiv.innerHTML = `
+                  <p><strong>Date:</strong> ${date}</p>
+                  <p><strong>Mileage:</strong> ${mileage} miles</p>
+                  <p><strong>Total Cost:</strong> $${totalCost.toFixed(2)}</p>
+                  <p><strong>Maintenance Cost:</strong> $${maintenanceCost.toFixed(2)}</p>
+                  <p><strong>Service:</strong> ${service}</p>
+                `;
+              }
+            },
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  unit: 'month',
+                },
+                title: { display: true, text: 'Date' },
+              },
+              y: {
+                beginAtZero: false,
+                min: maxIndividualCost,
+                title: { display: true, text: 'Cost ($)' },
+              },
             },
           },
         });
@@ -230,13 +325,14 @@
       const vehicleSelect = document.getElementById('vehicleSelect');
       vehicleSelect.addEventListener('change', (event) => {
         const vehicleId = event.target.value;
-        renderCostChart(vehicleId);
+        renderCharts(vehicleId);
       });
 
-      // Render initial chart for the default selected vehicle
+      // Render initial charts for the default selected vehicle
       const defaultVehicleId = vehicleSelect.value;
-      renderCostChart(defaultVehicleId);
+      renderCharts(defaultVehicleId);
     });
   </script>
 </body>
 </html>
+

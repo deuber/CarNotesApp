@@ -66,7 +66,7 @@ function writeNotes(vehicleId, notes) {
   fs.writeFileSync(filePath, JSON.stringify(notes, null, 2), 'utf-8');
 }
 
-// Ensure vehicles.json exists by copying from vehicles.sample.json or initializing empty
+// Ensure vehicles.json exists
 if (!fs.existsSync(vehiclesFilePath)) {
   const vehiclesSamplePath = path.join(__dirname, 'vehicles.sample.json');
   if (fs.existsSync(vehiclesSamplePath)) {
@@ -110,12 +110,15 @@ app.get('/maintenance/:vehicleId', (req, res) => {
   let cumulativeCost = 0;
   let maxCost = 0;
 
+  // Sort notes by date to ensure chronological order
+  notes.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   const maintenanceData = notes.map(note => {
     const cost = parseFloat(note.cost) || 0;
+    cumulativeCost += cost;
     if (cost > maxCost) {
       maxCost = cost;
     }
-    cumulativeCost += cost;
     return {
       note: note.note,
       date: note.date,
@@ -209,10 +212,13 @@ app.post('/notes/:vehicleId', (req, res) => {
     return res.status(400).send('Invalid note data.');
   }
 
+  // Parse and format the date to ISO format
+  const isoDate = new Date(date).toISOString().split('T')[0];
+
   const notes = readNotes(vehicleId);
   notes.push({
     note,
-    date,
+    date: isoDate,
     odometer: parseInt(odometer, 10),
     cost: cost ? parseFloat(cost).toFixed(2) : null,
   });
@@ -227,9 +233,12 @@ app.put('/notes/:vehicleId/:index', (req, res) => {
   const { note, date, odometer, cost } = req.body;
 
   // Validate input
-  if (!note || !date || isNaN(odometer) || isNaN(cost)) {
+  if (!note || !date || isNaN(odometer)) {
     return res.status(400).send('Invalid note data.');
   }
+
+  // Parse and format the date to ISO format
+  const isoDate = new Date(date).toISOString().split('T')[0];
 
   const notes = readNotes(vehicleId);
 
@@ -241,9 +250,9 @@ app.put('/notes/:vehicleId/:index', (req, res) => {
   // Update the note
   notes[index] = {
     note,
-    date,
+    date: isoDate,
     odometer: parseInt(odometer, 10),
-    cost: parseFloat(cost).toFixed(2), // Ensure cost is formatted as a float
+    cost: cost ? parseFloat(cost).toFixed(2) : null,
   };
 
   // Save the updated notes
